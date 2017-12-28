@@ -1,6 +1,7 @@
 package QSM;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -22,7 +23,7 @@ public class Leitor {
 		
 		try
 		{
-			in = new Scanner(arq);
+			in = new Scanner(new FileInputStream(arq), "UTF-8");
 		}
 		catch(Exception e)
 		{
@@ -40,13 +41,19 @@ public class Leitor {
 		List<Pickle> pickles = new Compiler().compile(gd);
 		//System.err.println("Total de Cenários: " + pickles.size());		
 		
+		int nCenarios = 0;
+		int estados = 0;
 		for(Pickle p : pickles)
 		{
 			//System.err.println("Cenário: " + p.getName());
+			nCenarios++;
+			//System.err.println("Cenários: " + nCenarios);
 			List<String> lt = new ArrayList<String>();
 			
 			for(PickleStep ps :p.getSteps())
 			{
+				estados++;
+				//System.err.println("estados: " + estados);
 				//System.err.println("Step: " + ps.getText());
 				lt.add(ps.getText());
 			}

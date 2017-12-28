@@ -3,7 +3,7 @@ Feature: Multiplos Testes
   Scenario: sequencia1
     Given A
     When B
-    Then C
+#    Then C
 
 #Scenario: sequencia2
 #    Given A

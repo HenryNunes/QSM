@@ -1,5 +1,9 @@
 package QSM;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,17 +20,48 @@ import com.gct.finiteStateMachine.State;
 import com.gct.finiteStateMachine.Transition;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 
-public class App {
+import jdk.jfr.events.FileWriteEvent;
 
+public class App {
+	static int contador = 0;
+	static StringBuilder csv = new StringBuilder(); 
+	
+	
 	public static void main(String[] args) {
-		
-		List<List<String>> sequenciasPositivas = Leitor.parser("portaCaneta.feature");
+		//US001.feature
+		//List<List<String>> sequenciasPositivas = Leitor.parser("US036.feature");
+		//List<List<String>> sequenciasPositivas = Leitor.parser("US001.feature");
+		List<List<String>> sequenciasPositivas = Leitor.parser("US001.feature");
 		//List<List<String>> sequenciasPositivas = Leitor.parser("multiplasSequencias.feature");
 		List<List<String>> sequenciasNegativas = new ArrayList<List<String>>();
 		FiniteStateMachine resultado = QSM(sequenciasPositivas, sequenciasNegativas);
 		
+		
+		System.out.println("\nContador: " +  contador);
 		System.out.println("\n\nResultado Final:");
 		System.out.println(resultado);
+		
+		File arq = new File("perguntas.csv");
+		
+		BufferedWriter bw = null;
+		FileWriter fw = null;
+		
+		try{
+			fw = new FileWriter(arq);
+			bw = new BufferedWriter(fw);
+			
+			bw.write(csv.toString());
+			bw.close();
+			fw.close();
+			
+		}
+		catch(Exception e)
+		{
+			System.err.println("ERRO ESCRITA ");
+			System.err.println(e.toString());
+		}
+		
+		
 	}
 	private static FiniteStateMachine QSM(List<List<String>> sequenciasPositivas, List<List<String>> sequenciasNegativas)
 	{
@@ -41,8 +76,8 @@ public class App {
 			//Pair<Integer> rank = comb.poll();
 			//Pair<State> p = new Pair<State>(pegarEstadoFsm(PTA ,rank.primeiro()), pegarEstadoFsm(PTA ,rank.segundo()));
 			 
-			System.out.println("\nFSM consolidade");
-			System.out.print(PTA);
+			//System.out.println("\nFSM consolidade");
+			//System.out.print(PTA);
 			
 			if(!PTA.getStates().contains(p.primeiro()) || !PTA.getStates().contains(p.segundo()))
 			{
@@ -52,29 +87,29 @@ public class App {
 			}
 						
 			FiniteStateMachine temp = merge(PTA, p.primeiro(), p.segundo());
-			System.out.println("Merge: " + p.primeiro() + " - " + p.segundo());
-			System.out.println("\nFSM NÃO consolidada");
-			System.out.println(temp);
+			//System.out.println("Merge: " + p.primeiro() + " - " + p.segundo());
+			//System.out.println("\nFSM NÃO consolidada");
+			//System.out.println(temp);
 			
 			if(compatibilityNeg(temp, sequenciasNegativas))
 			{
-				System.out.println("FSM temporaria não aceita sequencias negativas");
-				System.out.println("Sequencias negativas: " + sequenciasNegativas);
+				//System.out.println("FSM temporaria não aceita sequencias negativas");
+				//System.out.println("Sequencias negativas: " + sequenciasNegativas);
 				
 				for(List<String> teste : sequenciasTeste(PTA, p.primeiro, p.segundo ))
 				{
-					System.out.println("Sequencias teste: " + teste);
+					//System.out.println("Sequencias teste: " + teste);
 					
 					
 					if(sequenciasNegativas.contains(teste))
 					{
-						System.out.println("Já é recusada");
+						//System.out.println("Já é recusada");
 						temp = PTA;
 						break;
 					}
 					if(sequenciasPositivas.contains(teste))
 					{
-						System.out.println("Já é aceita");
+						//System.out.println("Já é aceita");
 						continue;						
 					}
 					
@@ -93,11 +128,12 @@ public class App {
 				}
 				// Se foi aprovado em todos os testes, passa a ser uma sequencia consolidada
 				PTA = temp;
+				System.out.println("Contador: " + contador);
 			}
 			else
 			{
-				System.out.println("FSM temporaria aceita sequencias negativas");
-				System.out.println("Sequencias negativas: " + sequenciasNegativas);
+				//System.out.println("FSM temporaria aceita sequencias negativas");
+				//System.out.println("Sequencias negativas: " + sequenciasNegativas);
 			}
 			
 			//PTA = temp;
@@ -508,17 +544,17 @@ public class App {
 			}
 			else if(sufixos == null)
 			{
-				System.err.println("ERROsufixos");
+				System.err.println("ERRO sufixos");
 			}
 			temp.addAll(sp);
 			temp.addAll(sufixo);
 			resposta.add(temp);
 		}
 		
-		if(sufixos.isEmpty())
+		if(sufixos.isEmpty() || estadoAdjacente(fsm, rankMenor, rankMaior))
 		{
-			System.err.print("Sequencia do caso da Borda");
-			System.err.println(problemaDaBorda(fsm, rankMenor, rankMaior));
+			//System.err.print("Sequencia do caso da Borda");
+			//System.err.println(problemaDaBorda(fsm, rankMenor, rankMaior));
 			List<String> temp = new ArrayList<String>();
 			temp.addAll(sp);
 			temp.addAll(problemaDaBorda(fsm, rankMenor, rankMaior));
@@ -528,25 +564,30 @@ public class App {
 	}
 	private static boolean verificarUsuario(List<String> teste)
 	{
+		contador++;
 		System.out.println("Sequencia valida? S-N");
 		System.out.println(teste);
-		boolean flag = false;
-		Scanner in = new Scanner(System.in);
-		while(1 == 1)
-		{
-			String resposta = in.next();
-			if(resposta.equals("S"))
-			{
-				flag = true;
-				break;
-			}
-			else if(resposta.equals("N"))
-			{
-				flag = false;
-				break;
-			}
-		}
-		return flag;
+		csv.append(teste + ";\n");
+		
+		
+		return true;
+//		boolean flag = false;
+//		Scanner in = new Scanner(System.in);
+//		while(1 == 1)
+//		{
+//			String resposta = in.next();
+//			if(resposta.equals("S"))
+//			{
+//				flag = true;
+//				break;
+//			}
+//			else if(resposta.equals("N"))
+//			{
+//				flag = false;
+//				break;
+//			}
+//		}
+//		return flag;
 	}
 	private static State pegarEstadoFsm(FiniteStateMachine fsm, int n)
 	{
@@ -575,15 +616,25 @@ public class App {
 	{
 		List<String> resposta = new ArrayList<String>();
 		List<String> temp = menorCaminho(fsm, rankMenor, rankMaior, new ArrayList<State>());
-		for(String s : temp)
+		if(temp != null)
 		{
-			resposta.add(s);
+			for(String s : temp)
+			{
+				resposta.add(s);
+			}
+			for(String s : temp)
+			{
+				resposta.add(s);
+			}
 		}
-		for(String s : temp)
-		{
-			resposta.add(s);
-		}
-		
 		return resposta;
+	}
+	private static boolean estadoAdjacente(FiniteStateMachine fsm, State rankMenor, State rankMaior)
+	{
+		for(Transition t : fsm.getTransitions())
+		{
+			if(t.getSourceState().equals(rankMenor) && t.getTargetState().equals(rankMaior) )return true;
+		}
+		return false;
 	}
 }

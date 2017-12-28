@@ -1,25 +1,25 @@
 Feature: Porta Caneta
 
   Scenario: colocandoCaneta
-    Given Open
-    When Deposita
-    And Fecha
+    Given Abrir
+    When Depositar
+    And Fechar
     Then NaoVazio
 
-  Scenario: retiraCaneta
-    Given Vazio
-    When Open
-    And Deposita
-    And Remove
-    Then Vazio
-
   Scenario: colocaRetira
-    Given Open
-    When Deposita
-    When Remove
-    When Fecha
+    Given Abrir
+    When Depositar
+    When Remover
+    When Fechar
     Then Vazio
 
   Scenario: abreFecha
-    Given Open
-    Then Fecha
+    Given Abrir
+    Then Fechar
+
+  Scenario: retiraCaneta
+    Given Vazio
+    When Abrir
+    And Depositar
+    And Remover
+    Then Vazio
